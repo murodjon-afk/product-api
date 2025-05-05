@@ -1,103 +1,172 @@
+"use client";
+
 import Image from "next/image";
+import { useEffect, useState } from "react";
+
+type Product = {
+  id: number;
+  title: string;
+  overview?: string;
+  price?: number;
+  image: string;
+};
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [cartItems, setCartItems] = useState<Product[]>([]);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+  useEffect(() => {
+    fetch("/api/products")
+      .then((res) => res.json())
+      .then((data) => {
+        setProducts(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Ошибка загрузки продуктов:", err);
+        setLoading(false);
+      });
+  }, []);
+
+  useEffect(() => {
+    const storedCart = localStorage.getItem("cart");
+    if (storedCart) {
+      setCartItems(JSON.parse(storedCart));
+    }
+  }, []);
+
+  const handleSelectProduct = (product: Product) => {
+    setSelectedProduct(product);
+  };
+
+  const handleCancelSelection = () => {
+    setSelectedProduct(null);
+  };
+
+  const handleAddToCart = () => {
+    if (!selectedProduct) return;
+    const updatedCart = [...cartItems, selectedProduct];
+    setCartItems(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+  };
+
+  const handleAddToFavorites = () => {
+    console.log("Продукт добавлен в понравившиеся:", selectedProduct);
+  };
+
+  return (
+    <div className="flex space-x-6 h-[85vh] p-4">
+      <div className="w-1/3 overflow-auto bg-white rounded-lg shadow p-4">
+        <h2 className="text-xl font-bold mb-4">Фрукты</h2>
+        {loading ? (
+          <p>Загрузка...</p>
+        ) : (
+          <ul className="grid grid-cols-2 gap-4">
+            {products
+              .filter((p) => p.title && p.image)
+              .map((product) => (
+                <li
+                key={product.id}
+                onClick={() => handleSelectProduct(product)}
+                className="cursor-pointer bg-white hover:bg-gray-200 transition p-3 rounded-lg shadow-sm flex flex-col items-center"
+              >
+                <div className="w-[200px] h-[200px] mb-2 overflow-hidden rounded">
+                  <Image
+                    src={product.image}
+                    alt={product.title}
+                    width={200}
+                    height={200}
+                    className="object-cover w-full h-full"
+                    unoptimized
+                  />
+                </div>
+                <span className="text-sm font-medium text-center">{product.title}</span>
+                {product.price && (
+                  <p className="text-blue-500 font-semibold text-sm mt-1">
+                    {product.price} ₽
+                  </p>
+                )}
+              </li>
+              
+              ))}
+          </ul>
+        )}
+      </div>
+
+      <div className="w-1/3 bg-gray-50 p-6 rounded-lg shadow-lg overflow-auto">
+        {selectedProduct ? (
+          <>
+            <h2 className="text-2xl font-bold mb-4">{selectedProduct.title}</h2>
             <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+              src={selectedProduct.image}
+              alt={selectedProduct.title}
+              width={400}
+              height={500}
+              className="rounded-md object-cover w-full h-[500px] mb-4"
+              unoptimized
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+            {selectedProduct.overview && (
+              <p className="text-sm text-gray-600 mb-2">{selectedProduct.overview}</p>
+            )}
+            {selectedProduct.price !== undefined && (
+              <p className="text-xl font-bold text-blue-500 mb-4">
+                {selectedProduct.price} ₽
+              </p>
+            )}
+
+            <div className="space-x-2">
+              <button
+                onClick={handleCancelSelection}
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-400"
+              >
+                Отменить
+              </button>
+              <button
+                onClick={handleAddToCart}
+                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-400"
+              >
+                В корзину
+              </button>
+              <button
+                onClick={handleAddToFavorites}
+                className="bg-yellow-400 text-white px-4 py-2 rounded hover:bg-yellow-300"
+              >
+                В избранное
+              </button>
+            </div>
+          </>
+        ) : (
+          <p className="text-center text-gray-500 mt-20">Выберите продукт для подробностей.</p>
+        )}
+      </div>
+
+      <div className="w-1/3 bg-white rounded-lg shadow p-6 overflow-auto">
+        <h2 className="text-xl font-bold mb-4">Корзина</h2>
+        {cartItems.length === 0 ? (
+          <p className="text-gray-500">Корзина пуста</p>
+        ) : (
+          <ul className="space-y-4">
+            {cartItems.map((item, index) => (
+              <li key={index} className="flex items-center gap-3">
+                <Image
+                  src={item.image}
+                  alt={item.title}
+                  width={50}
+                  height={50}
+                  className="rounded"
+                  unoptimized
+                />
+                <div>
+                  <p className="font-medium">{item.title}</p>
+                  <p className="text-sm text-blue-500">{item.price} ₽</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }
