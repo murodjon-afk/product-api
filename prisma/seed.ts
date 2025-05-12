@@ -1,4 +1,3 @@
-
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -24,7 +23,40 @@ const products = [
   },
 ];
 
+const users = [
+  {
+    id: '1',
+    name: 'Murod',
+    email: 'muro21601@gmail.com',
+    profileImg: 'useSession', // ты потом можешь заменить это на реальную ссылку из useSession
+    role: 'admin',
+  },
+  {
+    id: '2',
+    name: 'Daler',
+    email: 'example@gmail.com',
+    profileImg: 'useSession',
+    role: 'user',
+  },
+];
+
 async function main() {
+  // Создание пользователей
+  for (const user of users) {
+    await prisma.user.upsert({
+      where: { email: user.email },
+      update: {},
+      create: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        profileImg: user.profileImg,
+        role: user.role,
+      },
+    });
+  }
+
+  // Создание продуктов
   for (let i = 0; i < 10; i++) {
     const item = products[i % products.length];
     await prisma.product.create({
@@ -39,7 +71,9 @@ async function main() {
 }
 
 main()
-  .then(() => console.log('Seed complete'))
+  .then(() => {
+    console.log('✅ Seed complete');
+  })
   .catch((e) => {
     console.error(e);
     process.exit(1);

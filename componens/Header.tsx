@@ -51,7 +51,7 @@ export default function Header() {
 
     if (admin) {
       setError("");
-      localStorage.setItem("userFirstName", admin.name); // сохраняем имя
+      localStorage.setItem("userFirstName", admin.name);
       alert("Добро пожаловать в админку!");
       setIsModalOpen(false);
       router.push("/admin");
@@ -61,7 +61,7 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-blue-500 text-white py-4 shadow-md flex justify-between items-center px-4">
+    <header className="bg-[#9fc653] text-white py-4 shadow-md flex justify-between items-center px-4">
       <Link href="/" className="flex items-center gap-2">
         <Image
           src="/mevazor.png"
@@ -78,20 +78,20 @@ export default function Header() {
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         placeholder="Поиск фруктов..."
-        className="w-[50%] p-2 rounded-[10px] bg-white text-blue-500 border-0 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        className="w-[50%] p-2 rounded-[10px] bg-white text-green-500 border-0 focus:outline-none focus:ring-2 focus:ring-green-400"
       />
 
       <nav className="space-x-2 flex items-center">
         <Link
           href="/"
-          className="bg-white text-blue-500 px-4 py-2 rounded hover:bg-blue-100 transition"
+          className="bg-white text-green-500 px-4 py-2 rounded hover:bg-green-100 transition"
         >
           Главная
         </Link>
 
         <button
           onClick={handleAdminClick}
-          className="bg-white text-blue-500 px-4 py-2 rounded hover:bg-blue-100 transition"
+          className="bg-white text-green-500 px-4 py-2 rounded hover:bg-green-100 transition"
         >
           Админка
         </button>
@@ -99,7 +99,7 @@ export default function Header() {
         {session ? (
           <div className="flex items-center gap-2">
             {session.user?.image && (
-              <button onClick={handleSignOut} title="Выйти">
+              <button onClick={handleSignOut} title="Профиль">
                 <Image
                   src={session.user.image}
                   alt="GitHub avatar"
@@ -113,7 +113,7 @@ export default function Header() {
         ) : (
           <button
             onClick={() => signIn("github")}
-            className="bg-white text-blue-500 px-4 py-2 rounded hover:bg-blue-100 transition"
+            className="bg-white text-green-500 px-4 py-2 rounded hover:bg-green-100 transition"
           >
             Войти
           </button>
@@ -121,43 +121,55 @@ export default function Header() {
       </nav>
 
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h2 className="text-xl font-semibold mb-4">Вход в админку</h2>
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl w-96">
+            <h2 className="text-xl font-semibold mb-4 text-center">
+              Вход в админку
+            </h2>
             <form onSubmit={handleAdminSubmit}>
               <div className="mb-4">
-                <label htmlFor="name" className="block text-sm">Имя</label>
+                <label htmlFor="name" className="block text-sm mb-1">
+                  Имя
+                </label>
                 <input
                   type="text"
                   id="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full p-2 border rounded"
+                  placeholder="Введите имя"
+                  className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
                   required
                 />
               </div>
               <div className="mb-4">
-                <label htmlFor="password" className="block text-sm">Пароль</label>
+                <label htmlFor="password" className="block text-sm mb-1">
+                  Пароль
+                </label>
                 <input
                   type="password"
                   id="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full p-2 border rounded"
+                  placeholder="Введите пароль"
+                  className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
                   required
                 />
               </div>
-              {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
+              {error && (
+                <div className="text-red-500 text-sm mb-4 text-center">
+                  {error}
+                </div>
+              )}
               <button
                 type="submit"
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-400 transition"
+                className="w-full bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-400 transition"
               >
                 Войти
               </button>
             </form>
             <button
               onClick={() => setIsModalOpen(false)}
-              className="mt-4 text-gray-500 hover:text-gray-700"
+              className="mt-4 text-gray-500 hover:text-gray-700 block w-full text-center"
             >
               Закрыть
             </button>
